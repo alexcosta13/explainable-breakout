@@ -1,12 +1,15 @@
 import gym
 
+from agent import Agent
+
 
 def main():
     env = gym.make('Breakout-v4')
     env.reset()
-    for _ in range(1000):
-        a = env.step(env.action_space.sample())
-        print(a[-1])
+    agent = Agent(env.action_space.n)
+    for _ in range(100):
+        new_state, reward, is_done, info = env.step(agent.next_action())
+        print(info)
 
 
 if __name__ == "__main__":
