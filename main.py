@@ -3,12 +3,11 @@ import time
 import gym
 
 from agent import Agent
-
-RENDER = True
+from config import *
 
 
 def main():
-    env = gym.make('Breakout-v4')
+    env = gym.make(ENV_NAME)
     env.reset()
     agent = Agent(env.action_space.n)
     is_done = False
