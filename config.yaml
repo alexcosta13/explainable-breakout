@@ -7,7 +7,7 @@ ENV_NAME: "BreakoutDeterministic-v4"
 # If LOAD_FROM is None, it will train a new agent.
 # If SAVE_TO is None, it will not save the agent
 LOAD_FROM: null
-SAVE_TO: "breakout-saves"
+SAVE_TO: null
 LOAD_REPLAY_BUFFER: True
 
 WRITE_TENSORBOARD: True

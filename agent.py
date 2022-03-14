@@ -173,7 +173,8 @@ class Agent(object):
             batch_size: How many samples to draw for an update
             gamma: Reward discount
             frame_number: Global frame number (used for calculating importances)
-            priority_scale: How much to weight priorities when sampling the replay buffer. 0 = completely random, 1 = completely based on priority
+            priority_scale: How much to weight priorities when sampling the replay buffer. 0 = completely random,
+            1 = completely based on priority
         Returns:
             The loss between the predicted and target Q as a float
         """
@@ -206,7 +207,7 @@ class Agent(object):
         double_q = future_q_vals[range(batch_size), arg_q_max]
 
         # Calculate targets (bellman equation)
-        target_q = rewards + (gamma * double_q * (1 - terminal_flags))
+        target_q = rewards + (gamma * double_q * (1 - terminal_flags))  # TODO: is this clip rewards?
 
         # Use targets to calculate loss (and use loss to calculate gradients)
         with tf.GradientTape() as tape:
