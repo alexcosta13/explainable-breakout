@@ -1,3 +1,5 @@
+import random
+
 import gym
 import numpy as np
 
@@ -10,7 +12,7 @@ class GameWrapper:
     def __init__(self, env_name, no_op_steps=10, history_length=4):
         self.env = gym.make(env_name)
         self.no_op_steps = no_op_steps
-        self.history_length = 4
+        self.history_length = history_length
 
         self.state = None
         self.last_lives = 0
@@ -21,7 +23,7 @@ class GameWrapper:
             evaluation: Set to True when the agent is being evaluated. Takes a random number of no-op steps if True.
         """
 
-        self.frame = self.env.reset()
+        frame = self.env.reset()
         self.last_lives = 0
 
         # If evaluating, take a random number of no-op steps.
@@ -32,7 +34,7 @@ class GameWrapper:
                 self.env.step(1)
 
         # For the initial state, we stack the first frame four times
-        self.state = np.repeat(process_frame(self.frame), self.history_length, axis=2)
+        self.state = np.repeat(process_frame(frame), self.history_length, axis=2)
 
     def step(self, action, render_mode=None):
         """Performs an action and observes the result
@@ -76,5 +78,7 @@ class GameWrapper:
             )
         elif render_mode == "human":
             self.env.render()
+        elif render_mode == "shap":
+            return new_frame, processed_frame, reward, terminal, life_lost
 
         return processed_frame, reward, terminal, life_lost
