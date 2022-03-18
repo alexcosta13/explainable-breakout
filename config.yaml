@@ -1,13 +1,13 @@
 ### The Config ###
 
 # Name of the Gym environment for the agent to learn & play
-ENV_NAME: "BreakoutDeterministic-v4"
+ENV_NAME: "Breakout-v4"
 
 # Loading and saving information.
 # If LOAD_FROM is None, it will train a new agent.
 # If SAVE_TO is None, it will not save the agent
 LOAD_FROM: null
-SAVE_TO: null
+SAVE_TO: 'breakout-saves/'
 LOAD_REPLAY_BUFFER: True
 
 WRITE_WANDB: True

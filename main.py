@@ -129,7 +129,8 @@ def main(args):
                             {
                                 "frame_number": frame_number,
                                 "reward": np.mean(rewards[-10:]),
-                                "loss": np.mean(loss_list[-100:]),
+                                "loss": np.mean(loss_list[-10:]),
+                                "smooth_loss": np.mean(loss_list[-100:]),
                                 "time": time.time() - start_time,
                             }
                         )

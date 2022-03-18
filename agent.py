@@ -269,21 +269,14 @@ class Agent(object):
                 )
             )  # save replay_buffer information and any other information
 
+    # Load a previously saved Agent from a folder
     def load(self, folder_name, load_replay_buffer=True):
-        """Load a previously saved Agent from a folder
-        Arguments:
-            folder_name: Folder from which to load the Agent
-        Returns:
-            All other saved attributes, e.g., frame number
-        """
-
         if not os.path.isdir(folder_name):
             raise ValueError(f"{folder_name} is not a valid directory")
 
         # Load DQNs
         self.DQN = tf.keras.models.load_model(folder_name + "/dqn.h5")
         self.target_dqn = tf.keras.models.load_model(folder_name + "/target_dqn.h5")
-        self.optimizer = self.DQN.optimizer
 
         # Load replay buffer
         if load_replay_buffer:
