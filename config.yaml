@@ -10,8 +10,8 @@ LOAD_FROM: null
 SAVE_TO: null
 LOAD_REPLAY_BUFFER: True
 
-WRITE_TENSORBOARD: True
-TENSORBOARD_DIR: "tensorboard/"
+WRITE_WANDB: True
+WRITE_TERMINAL: True
 
 # If True, use the prioritized experience replay algorithm, instead of regular experience replay
 # This is much more computationally expensive, but will also allow for better results. Implementing

@@ -13,12 +13,13 @@ from replaybuffer import ReplayBuffer
 
 def main(args):
     game_wrapper = GameWrapper(args["ENV_NAME"], args["MAX_NOOP_STEPS"])
-    print(
-        "The environment has the following {} actions: {}".format(
-            game_wrapper.env.action_space.n,
-            game_wrapper.env.unwrapped.get_action_meanings(),
+    if args["WRITE_TERMINAL"]:
+        print(
+            "The environment has the following {} actions: {}".format(
+                game_wrapper.env.action_space.n,
+                game_wrapper.env.unwrapped.get_action_meanings(),
+            )
         )
-    )
 
     wandb.init(config=args)
 
@@ -51,7 +52,8 @@ def main(args):
         rewards = []
         loss_list = []
     else:
-        print("Loading from", args["LOAD_FROM"])
+        if args["WRITE_TERMINAL"]:
+            print("Loading from", args["LOAD_FROM"])
         meta = agent.load(args["LOAD_FROM"], args["LOAD_REPLAY_BUFFER"])
 
         # Apply information loaded from meta
@@ -122,7 +124,7 @@ def main(args):
                 # Output the progress every 10 games
                 if len(rewards) % 10 == 0:
                     # Write to TensorBoard
-                    if args["WRITE_TENSORBOARD"]:
+                    if args["WRITE_WANDB"]:
                         wandb.log(
                             {
                                 "frame_number": frame_number,
@@ -132,12 +134,13 @@ def main(args):
                             }
                         )
 
-                    print(
-                        f"Game number: {str(len(rewards)).zfill(6)}\t"
-                        f"Frame number: {str(frame_number).zfill(8)}\t"
-                        f"Average reward: {np.mean(rewards[-10:]):0.1f}\t"
-                        f"Time taken: {(time.time() - start_time):.1f}s"
-                    )
+                    if args["WRITE_TERMINAL"]:
+                        print(
+                            f"Game number: {str(len(rewards)).zfill(6)}\t"
+                            f"Frame number: {str(frame_number).zfill(8)}\t"
+                            f"Average reward: {np.mean(rewards[-10:]):0.1f}\t"
+                            f"Time taken: {(time.time() - start_time):.1f}s"
+                        )
 
             # Evaluation every `FRAMES_BETWEEN_EVAL` frames
             terminal = True
@@ -177,11 +180,14 @@ def main(args):
                 # In case the game is longer than the number of frames allowed
                 final_score = episode_reward_sum
             # Print score and write to tensorboard
-            print("Evaluation score:", final_score)
-            if args["WRITE_TENSORBOARD"]:
+
+            if args["WRITE_WANDB"]:
                 wandb.log(
                     {"frame_number": frame_number, "evaluation_score": final_score}
                 )
+
+            if args["WRITE_TERMINAL"]:
+                print("Evaluation score:", final_score)
 
             # Save model
             if len(rewards) > 300 and args["SAVE_TO"] is not None:
