@@ -21,7 +21,8 @@ def main(args):
             )
         )
 
-    wandb.init(config=args)
+    if args["WRITE?WANDB"]:
+        wandb.init(config=args)
 
     # Build main and target networks
     main_dqn = build_dqn(
