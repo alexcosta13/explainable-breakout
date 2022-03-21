@@ -197,6 +197,7 @@ def main(args):
                     frame_number=frame_number,
                     rewards=rewards,
                     loss_list=loss_list,
+                    save_buffer=args["SAVE_REPLAY_BUFFER"]
                 )
     except KeyboardInterrupt:
         print("\nTraining exited early.")
@@ -217,6 +218,7 @@ def main(args):
                 frame_number=frame_number,
                 rewards=rewards,
                 loss_list=loss_list,
+                save_buffer=args["SAVE_REPLAY_BUFFER"]
             )
             print("Saved.")
 
