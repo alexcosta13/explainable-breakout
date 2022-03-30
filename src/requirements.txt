@@ -1,0 +1,6 @@
+gym==0.19.0
+numpy==1.21.5
+PyYAML==6.0
+tensorflow==2.8.0
+tensorflow_gpu==2.8.0
+wandb==0.12.11

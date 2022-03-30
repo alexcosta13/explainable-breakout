@@ -6,13 +6,13 @@ ENV_NAME: "Breakout-v4"
 # Loading and saving information.
 # If LOAD_FROM is None, it will train a new agent.
 # If SAVE_TO is None, it will not save the agent
-SAVE_TO: 'breakout-saves/'
+SAVE_TO: 'breakout-saves'
 SAVE_REPLAY_BUFFER: False
 LOAD_FROM: null
 LOAD_REPLAY_BUFFER: True
 
 WRITE_WANDB: True
-WRITE_TERMINAL: True
+WRITE_TERMINAL: False
 
 # If True, use the prioritized experience replay algorithm, instead of regular experience replay
 # This is much more computationally expensive, but will also allow for better results. Implementing
@@ -26,7 +26,7 @@ CLIP_REWARD: True  # Any positive reward is +1, and negative reward is -1, 0 is 
 
 TOTAL_FRAMES: 30000000  # Total number of frames to train for
 MAX_EPISODE_LENGTH: 18000  # Maximum length of an episode (in frames).  18000 frames / 60 fps = 5 minutes
-FRAMES_BETWEEN_EVAL: 100000  # Number of frames between evaluations
+FRAMES_BETWEEN_EVAL: 300000  # Number of frames between evaluations
 EVAL_LENGTH: 10000  # Number of frames to evaluate for
 UPDATE_FREQ_TARGET_NETWORK: 10000  # Number of actions chosen between updating the target network
 
