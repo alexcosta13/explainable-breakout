@@ -23,7 +23,8 @@ def main(args):
         )
 
     if args["WRITE_WANDB"]:
-        wandb.init(config=args)
+        wandb.init(config=args,
+                   project='explainable-breakout')
 
     # Build main and target networks
     main_dqn = build_dqn(
@@ -129,7 +130,6 @@ def main(args):
                     if args["WRITE_WANDB"]:
                         wandb.log(
                             {
-                                "frame_number": frame_number,
                                 "reward": np.mean(rewards[-10:]),
                                 "loss": np.mean(loss_list[-10:]),
                                 "smooth_loss": np.mean(loss_list[-100:]),

@@ -12,7 +12,7 @@ LOAD_FROM: null
 LOAD_REPLAY_BUFFER: True
 
 WRITE_WANDB: True
-WRITE_TERMINAL: True
+WRITE_TERMINAL: False
 
 # If True, use the prioritized experience replay algorithm, instead of regular experience replay
 # This is much more computationally expensive, but will also allow for better results. Implementing
