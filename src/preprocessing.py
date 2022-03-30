@@ -14,17 +14,3 @@ def process_frame(frame, shape=(84, 84)):
     frame = frame.reshape((*shape, 1))
 
     return frame
-
-
-def process_multiple_frames(data, shape=(84, 84)):
-    output = []
-    for frame in data:
-        processed = [
-            process_frame(frame[:, :160, :], shape),
-            process_frame(frame[:, 160 : 160 * 2, :], shape),
-            process_frame(frame[:, 160 * 2 : 160 * 3, :], shape),
-            process_frame(frame[:, 160 * 3 :, :], shape),
-        ]
-        processed = np.concatenate(processed, axis=2)
-        output.append(processed[np.newaxis, ...])
-    return np.concatenate(output, axis=0)

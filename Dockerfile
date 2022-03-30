@@ -6,6 +6,7 @@ WORKDIR /explainable-breakout
 ARG WANDB_SECRET=""
 
 # Install base utilities
+RUN apt-key adv --fetch-keys https://developer.download.nvidia.com/compute/cuda/repos/ubuntu2004/x86_64/3bf863cc.pub
 RUN apt-get update && \
     apt-get install -y wget && \
     apt-get clean && \

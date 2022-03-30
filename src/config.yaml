@@ -6,13 +6,13 @@ ENV_NAME: "Breakout-v4"
 # Loading and saving information.
 # If LOAD_FROM is None, it will train a new agent.
 # If SAVE_TO is None, it will not save the agent
-SAVE_TO: 'breakout-saves/'
+SAVE_TO: 'breakout-saves'
 SAVE_REPLAY_BUFFER: False
-LOAD_FROM: 'breakout-saves/save-03508167'
+LOAD_FROM: 'breakout-saves/save-last'
 LOAD_REPLAY_BUFFER: False
 
 WRITE_WANDB: True
-WRITE_TERMINAL: True
+WRITE_TERMINAL: False
 
 # If True, use the prioritized experience replay algorithm, instead of regular experience replay
 # This is much more computationally expensive, but will also allow for better results. Implementing

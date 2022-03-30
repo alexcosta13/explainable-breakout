@@ -200,6 +200,7 @@ def main(args):
                     loss_list=loss_list,
                     save_buffer=args["SAVE_REPLAY_BUFFER"],
                 )
+
     except KeyboardInterrupt:
         print("\nTraining exited early.")
 
