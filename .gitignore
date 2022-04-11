@@ -9,3 +9,5 @@ wandb/
 
 # Jupyter Notebook
 .ipynb_checkpoints
+
+*.mp4
