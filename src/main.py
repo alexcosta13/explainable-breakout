@@ -23,8 +23,7 @@ def main(args):
         )
 
     if args["WRITE_WANDB"]:
-        wandb.init(config=args,
-                   project='explainable-breakout')
+        wandb.init(config=args, project="explainable-breakout")
 
     # Build main and target networks
     main_dqn = build_dqn(
@@ -199,7 +198,7 @@ def main(args):
                     frame_number=frame_number,
                     rewards=rewards,
                     loss_list=loss_list,
-                    save_buffer=args["SAVE_REPLAY_BUFFER"]
+                    save_buffer=args["SAVE_REPLAY_BUFFER"],
                 )
     except KeyboardInterrupt:
         print("\nTraining exited early.")
@@ -220,16 +219,16 @@ def main(args):
                 frame_number=frame_number,
                 rewards=rewards,
                 loss_list=loss_list,
-                save_buffer=args["SAVE_REPLAY_BUFFER"]
+                save_buffer=args["SAVE_REPLAY_BUFFER"],
             )
             print("Saved.")
 
 
 if __name__ == "__main__":
-    gpu_devices = tf.config.experimental.list_physical_devices('GPU')
+    gpu_devices = tf.config.experimental.list_physical_devices("GPU")
     for device in gpu_devices:
         tf.config.experimental.set_memory_growth(device, True)
-    print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
+    print("Num GPUs Available: ", len(tf.config.list_physical_devices("GPU")))
 
     with open("config.yaml") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
