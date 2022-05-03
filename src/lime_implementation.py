@@ -2,7 +2,7 @@ import numpy as np
 from lime import lime_image
 
 from preprocessing import process_multiple_frames
-from src.video import make_movie_explanation
+from video import make_movie
 from utils import load_agent
 
 
@@ -32,47 +32,65 @@ def lime_explain(args, history):
 
     history["explanation"] = []
 
-    for image in data:
-        explainer = lime_image.LimeImageExplainer()
-        explanation = explainer.explain_instance(
-            image,
-            func,
-            top_labels=4,
-            hide_color=0,
-            num_samples=args["LIME_NUM_SAMPLES"],
-        )
+    red = np.zeros((210, 160, 3))
+    red[:, :, 0] = 1
 
-        # temp, mask = explanation.get_image_and_mask(
-        #     2, positive_only=True, num_features=10, hide_rest=False, min_weight=0.2
-        # )
-        #
-        # temp, mask = temp[:, :160, :], mask[:, :160]
-        # plt.imshow(mark_boundaries(temp / 2 + 0.5, mask))
+    blue = np.zeros((210, 160, 3))
+    blue[:, :, 2] = 1
+
+    for i, image in enumerate(data):
+        if history["action"][i] in (2,3):
+            explainer = lime_image.LimeImageExplainer()
+            explanation = explainer.explain_instance(
+                image,
+                func,
+                top_labels=4,
+                hide_color=0,
+                num_samples=args["LIME_NUM_SAMPLES"],
+            )
+
+            percentile = args["PERCENTILE"]
+            alpha = args["TRANSPARENCY"]
+            image = image[:, :160, :]
+
+        if history["action"][i] == 2:
+
+            # Map each explanation weight to the corresponding superpixel
+            dict_heatmap_right = dict(explanation.local_exp[2])
+            right = np.vectorize(dict_heatmap_right.get)(explanation.segments)[:, :160]
+            right /= right.max()
+            right = np.where(right > np.percentile(right, percentile), right, 0)
+            right = np.repeat(right[:, :, np.newaxis], 3, axis=2)
+            plot = np.where(
+                right == 0,
+                image / 255,
+                image / 255 * (1 - alpha) + red * alpha * right,
+            )
+        elif history["action"][i] == 3:
+            # Map each explanation weight to the corresponding superpixel
+            dict_heatmap_left = dict(explanation.local_exp[3])
+            left = np.vectorize(dict_heatmap_left.get)(explanation.segments)[:, :160]
+            left /= left.max()
+            left = np.where(left > np.percentile(left, percentile), left, 0)
+            left = np.repeat(left[:, :, np.newaxis], 3, axis=2)
+            plot = np.where(
+                left == 0,
+                image / 255,
+                image / 255 * (1 - alpha) + blue * alpha * left,
+            )
+        else:
+            plot = image[:, :160, :] / 255
+
+        history["explanation"].append(plot)
+
+        # Plot. The visualization makes more sense if a symmetrical colorbar is used.
+        # plt.imshow(heatmap, cmap="RdBu", vmin=-heatmap.max(), vmax=heatmap.max())
+        # plt.colorbar()
         # plt.show()
 
-        # Map each explanation weight to the corresponding superpixel
-        dict_heatmap_right = dict(explanation.local_exp[2])
-        heatmap_right = np.vectorize(dict_heatmap_right.get)(explanation.segments)[
-            :, :160
-        ]
-
-        dict_heatmap_left = dict(explanation.local_exp[3])
-        heatmap_left = np.vectorize(dict_heatmap_left.get)(explanation.segments)[
-            :, :160
-        ]
-
-        history["explanation"].append(heatmap_right - heatmap_left)
-
-    # Plot. The visualization makes more sense if a symmetrical colorbar is used.
-    # plt.imshow(heatmap, cmap="RdBu", vmin=-heatmap.max(), vmax=heatmap.max())
-    # plt.colorbar()
-    # plt.show()
-
-    make_movie_explanation(
-        history["raw_state"],
+    make_movie(
         history["explanation"],
-        resolution=args["VIDEO_RESOLUTION"],
+        fps=args["VIDEO_FPS"],
         movie_title=args["MOVIE_TITLE"],
         save_dir=args["MOVIE_SAVE_DIR"],
-        transparency=args["TRANSPARENCY"],
     )

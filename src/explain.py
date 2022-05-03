@@ -1,17 +1,17 @@
 import pickle
-
-import matplotlib.pyplot as plt
-
-import numpy as np
-from shap_implementation import shap_explain
 import yaml
 
-# from gamewrapper import GameWrapper
-from src.lime_implementation import lime_explain
+import numpy as np
+
+from lime_implementation import lime_explain
+from shap_implementation import shap_explain
+from video import make_movie
 from utils import load_agent
 
 
 def run_episode(args):
+    from gamewrapper import GameWrapper
+
     game_wrapper = GameWrapper(args["ENV_NAME"], args["MAX_NOOP_STEPS"])
     agent = load_agent(args)
 
@@ -64,12 +64,25 @@ def run_episode(args):
 if __name__ == "__main__":
     with open("explain.yaml") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
-    # h = run_episode(config)
 
-    # with open('history.pkl', 'wb') as f:
-    #    pickle.dump(h, f)
+    if config["LOAD_HISTORY_FROM"] is None:
+        h = run_episode(config)
+        if config["SAVE_HISTORY_TO"] is not None:
+            with open(config["SAVE_HISTORY_TO"], "wb") as f:
+                pickle.dump(h, f)
 
-    with open("history.pkl", "rb") as f:
-        h = pickle.load(f)
+    else:
+        with open(config["LOAD_HISTORY_FROM"], "rb") as f:
+            h = pickle.load(f)
 
-    lime_explain(config, h)
+    h = {k: v[:config["VIDEO_LENGTH_FRAMES"]] for k, v in h.items()}
+
+    if config["EXPLAINABILITY_METHOD"] == "":
+        make_movie(h["raw_state"],config["VIDEO_FPS"], config["MOVIE_SAVE_DIR"], config["MOVIE_TITLE"])
+    elif config["EXPLAINABILITY_METHOD"] == "shap":
+        shap_explain(config, h)
+    elif config["EXPLAINABILITY_METHOD"] == "lime":
+        lime_explain(config, h)
+    else:
+        raise NotImplementedError("EXPLAINABILITY_METHOD not supported")
+    # NOOP, FIRE, RIGHT, LEFT
