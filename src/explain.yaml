@@ -1,0 +1,43 @@
+### Explainability Config ###
+
+# Name of the Gym environment for the agent to learn & play
+ENV_NAME: "Breakout-v4"
+
+# Loading and saving information.
+LOAD_AGENT_FROM: 'breakout-saves/save-last'
+LOAD_REPLAY_BUFFER: False
+
+WRITE_TERMINAL: True
+
+# If True, use the prioritized experience replay algorithm, instead of regular experience replay
+# This is much more computationally expensive, but will also allow for better results. Implementing
+# a binary heap, as recommended in the PER paper, would make this less expensive.
+# Since Breakout is a simple game, I wouldn't recommend using it here.
+USE_PER: False
+
+PRIORITY_SCALE: 0.7  # How much the replay buffer should sample based on priorities. 0 = complete random
+# samples, 1 = completely aligned with priorities
+CLIP_REWARD: True  # Any positive reward is +1, and negative reward is -1, 0 is unchanged
+
+EVAL_LENGTH: 7200  # Number of frames to evaluate for. 7200 frames / 60 fps = 2 minutes
+REPLAY_BUFFER_SIZE: 1000000  # The maximum size of the replay buffer
+MAX_NOOP_STEPS: 20  # Randomly perform this number of actions before every evaluation to give it an element of randomness
+
+# Size of the preprocessed input frame. With the current model architecture, anything below ~80 won't work.
+INPUT_SHAPE: !!python/tuple [84,84]
+AGENT_BATCH_SIZE: 32  # Number of samples the agent learns from at once
+
+LOAD_HISTORY_FROM: "history_long.pkl"
+SAVE_HISTORY_TO: ""
+
+# Explainability variables
+EXPLAINABILITY_METHOD: "shap"
+VIDEO_LENGTH_FRAMES: 100
+SHAP_MAX_EVALS: 5000
+SHAP_BATCH_SIZE: 50
+LIME_NUM_SAMPLES: 2000
+TRANSPARENCY: 0.7
+PERCENTILE: 90
+VIDEO_FPS: 8
+MOVIE_SAVE_DIR: ""
+MOVIE_TITLE: "shap"

@@ -78,7 +78,7 @@ class GameWrapper:
             )
         elif render_mode == "human":
             self.env.render()
-        elif render_mode == "shap":
+        elif render_mode == "explain":
             return new_frame, processed_frame, reward, terminal, life_lost
 
         return processed_frame, reward, terminal, life_lost

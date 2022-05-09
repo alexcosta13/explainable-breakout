@@ -253,7 +253,7 @@ class Agent(object):
         self.target_dqn.save(folder_name + "/target_dqn.h5")
 
         # Save replay buffer
-        if kwargs['save_buffer']:
+        if kwargs["save_buffer"]:
             self.replay_buffer.save(folder_name + "/replay-buffer")
 
         # Save meta
