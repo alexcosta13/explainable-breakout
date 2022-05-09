@@ -9,5 +9,6 @@ wandb/
 
 # Jupyter Notebook
 .ipynb_checkpoints
-
+.DS_Store
 *.mp4
+*.pkl
