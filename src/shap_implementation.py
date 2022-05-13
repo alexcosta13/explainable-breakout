@@ -28,7 +28,14 @@ def shap_calculate(agent, history, max_evals, batch_size, number_of_outputs=4):
         )
         i += 1
 
-    masker = shap.maskers.Image("inpaint_telea", (210, 160 * 4, 3))
+    # masker = shap.maskers.Image("inpaint_telea", (210, 160 * 4, 3))
+    mask = np.zeros((210, 160, 3))
+    mask[:196, :8, :] = [142, 142, 142]
+    mask[:195, 152:, :] = [142, 142, 142]
+    mask[:32, :, :] = [142, 142, 142]
+    mask = np.concatenate((mask, mask, mask, mask), axis=1)
+
+    masker = shap.maskers.Image(mask)
     explainer = shap.Explainer(func, masker)
     shap_values = explainer(
         data,
@@ -91,7 +98,9 @@ def shap_explain(args, history):
         agent, history, args["SHAP_MAX_EVALS"], args["SHAP_BATCH_SIZE"]
     )
 
-    frames = shap_postprocess(history, shap_values, args["PERCENTILE"], args["TRANSPARENCY"])
+    frames = shap_postprocess(
+        history, shap_values, args["PERCENTILE"], args["TRANSPARENCY"]
+    )
 
     make_movie(
         frames,

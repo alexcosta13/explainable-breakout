@@ -39,7 +39,7 @@ def lime_explain(args, history):
     blue[:, :, 2] = 1
 
     for i, image in enumerate(data):
-        if history["action"][i] in (2,3):
+        if history["action"][i] in (2, 3):
             explainer = lime_image.LimeImageExplainer()
             explanation = explainer.explain_instance(
                 image,
