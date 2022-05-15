@@ -2,7 +2,7 @@ import numpy as np
 
 import shap
 from preprocessing import process_multiple_frames
-from utils import load_agent
+from utils import load_agent, get_mask
 
 
 def shap_calculate(agent, history, max_evals, batch_size, number_of_outputs=4):
@@ -27,12 +27,7 @@ def shap_calculate(agent, history, max_evals, batch_size, number_of_outputs=4):
         )
         i += 1
 
-    # masker = shap.maskers.Image("inpaint_telea", (210, 160 * 4, 3))
-    mask = np.zeros((210, 160, 3))
-    mask[:196, :8, :] = [142, 142, 142]
-    mask[:195, 152:, :] = [142, 142, 142]
-    mask[:32, :, :] = [142, 142, 142]
-    mask = np.concatenate((mask, mask, mask, mask), axis=1)
+    mask = get_mask()
 
     masker = shap.maskers.Image(mask)
     explainer = shap.Explainer(func, masker)

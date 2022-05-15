@@ -2,7 +2,7 @@ import numpy as np
 from lime import lime_image
 
 from preprocessing import process_multiple_frames
-from utils import load_agent
+from utils import load_agent, get_mask
 
 
 def lime_explain(args, history):
@@ -37,6 +37,8 @@ def lime_explain(args, history):
     blue = np.zeros((210, 160, 3))
     blue[:, :, 2] = 1
 
+    mask = get_mask()
+
     for i, image in enumerate(data):
         if history["action"][i] in (2, 3):
             explainer = lime_image.LimeImageExplainer()
@@ -44,7 +46,7 @@ def lime_explain(args, history):
                 image,
                 func,
                 top_labels=4,
-                hide_color=0,
+                hide_color=mask,
                 num_samples=args["LIME_NUM_SAMPLES"],
             )
 
