@@ -1,15 +1,8 @@
-import pickle
-
 import numpy as np
 import cv2
-import yaml
 from PIL import Image
 import tensorflow as tf
-from tensorflow.python.framework import ops
-import tensorflow.python.keras.backend as K
 
-from dqn import build_dqn
-from video import make_movie
 from utils import load_agent
 
 
@@ -92,7 +85,7 @@ def gradcam_implementation(args, history, resolution=75):
             if i % 10 == 0:
                 print(i)
 
-            cam_heatmap = grad_cam(model, 4, frame)
+            cam_heatmap = grad_cam(model, 3, frame)
             # gbp_heatmap = guided_backpropagation(g_model, frame)
             # ggc_heatmap = guided_gradcam(cam_heatmap, gbp_heatmap)
 
@@ -108,27 +101,8 @@ def gradcam_implementation(args, history, resolution=75):
     fig_array = normalization(history_gradcam, history, visu="cam")
     # fig_array2 = normalization(history_gbp, history, visu="gbp")
     # fig_array3 = normalization(history_ggc, history, visu="gbp")
-    make_movie(
-        fig_array,
-        fps=args["VIDEO_FPS"],
-        save_dir=args["MOVIE_SAVE_DIR"],
-        movie_title="gradcam" + args["MOVIE_TITLE"],
-        resolution=resolution,
-    )
-    # make_movie(
-    #     fig_array2,
-    #     fps=args["VIDEO_FPS"],
-    #     save_dir=args["MOVIE_SAVE_DIR"],
-    #     movie_title="gbp" + args["MOVIE_TITLE"],
-    #     resolution=resolution
-    # )
-    # make_movie(
-    #     fig_array3,
-    #     fps=args["VIDEO_FPS"],
-    #     save_dir=args["MOVIE_SAVE_DIR"],
-    #     movie_title="gcc" + args["MOVIE_TITLE"],
-    #     resolution=resolution
-    # )
+
+    return fig_array
 
 
 def normalization(heatmap, history, visu):
@@ -152,14 +126,18 @@ def normalization(heatmap, history, visu):
         heatmap = np.clip(heatmap, 0, 1)
         heatmap_pic = heatmap[:, :, :]
 
-    all_frames = history["raw_state"].copy()
-    frame = np.zeros((len(all_frames), 84, 84, 3))
+    all_frames = history["raw_state"].copy() / 255
+    final_heatmap = np.zeros(all_frames.shape[:-1])
     for i in range(len(all_frames)):
-        frame[i, :, :, :] = (
-            np.asarray(Image.fromarray(all_frames[i]).resize((84, 84), Image.BILINEAR))
+        final_heatmap[i, ...] = (
+            np.asarray(
+                Image.fromarray(heatmap_pic[i]).resize(
+                    (all_frames.shape[1:-1][::-1]), Image.BILINEAR
+                )
+            )
             / 255
         )
-    proc_frame = overlap(frame, heatmap_pic)
+    proc_frame = overlap(all_frames, final_heatmap)
     return proc_frame
 
 
@@ -167,12 +145,12 @@ def overlap(frame, gbp_heatmap):
     color_neg = [1.0, 0.0, 0.0]
     color_pos = [0.0, 1.0, 0.0]
     # color_chan = np.ones((FRAMES, 84, 84, 2), dtype=gbp_heatmap.dtype)
-    alpha = 0.2
+    alpha = 0.3
     # beta = 0.25
     # gbp_heatmap = np.expand_dims(gbp_heatmap, axis=4)
     _gbp_heatmap = [gbp_heatmap for _ in range(3)]
     _gbp_heatmap = np.stack(_gbp_heatmap, axis=3)
-    gbp_heatmap = _gbp_heatmap
+    gbp_heatmap = _gbp_heatmap / _gbp_heatmap.max() / 2
     # gbp_heatmap = np.concatenate((gbp_heatmap,color_chan),axis=3)
     gbp_heatmap_pos = np.asarray(gbp_heatmap.copy())
     gbp_heatmap_neg = np.asarray(gbp_heatmap.copy())

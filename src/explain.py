@@ -1,3 +1,4 @@
+import argparse
 import pickle
 import yaml
 
@@ -76,21 +77,29 @@ if __name__ == "__main__":
         with open(config["LOAD_HISTORY_FROM"], "rb") as f:
             h = pickle.load(f)
 
-    h = {k: v[: config["VIDEO_LENGTH_FRAMES"]] for k, v in h.items()}
+    h = {
+        k: v[
+            config["VIDEO_FIRST_FRAME"] : config["VIDEO_FIRST_FRAME"]
+            + config["VIDEO_LENGTH_FRAMES"]
+        ]
+        for k, v in h.items()
+    }
 
     if config["EXPLAINABILITY_METHOD"] == "":
-        make_movie(
-            h["raw_state"],
-            config["VIDEO_FPS"],
-            config["MOVIE_SAVE_DIR"],
-            config["MOVIE_TITLE"],
-        )
+        frames = h["raw_state"]
     elif config["EXPLAINABILITY_METHOD"] == "shap":
-        shap_explain(config, h)
+        frames = shap_explain(config, h)
     elif config["EXPLAINABILITY_METHOD"] == "lime":
-        lime_explain(config, h)
+        frames = lime_explain(config, h)
     elif config["EXPLAINABILITY_METHOD"] == "gradcam":
-        gradcam_implementation(config, h)
+        frames = gradcam_implementation(config, h)
     else:
-        raise NotImplementedError("EXPLAINABILITY_METHOD not supported")
+        raise NotImplementedError("EXPLAINABILITY_METHOD not supported, enter shap, lime or gradcam")
+
+    make_movie(
+        frames,
+        config["VIDEO_FPS"],
+        config["MOVIE_SAVE_DIR"],
+        config["MOVIE_TITLE"],
+    )
     # NOOP, FIRE, RIGHT, LEFT
