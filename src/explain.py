@@ -6,8 +6,8 @@ import numpy as np
 
 from lime_implementation import lime_explain
 from shap_implementation import shap_explain
-from gradcam import gradcam_implementation
-from video import make_movie
+from gradcam import gradcam_explain
+from video import make_movie, save_frames
 from utils import load_agent
 
 
@@ -50,11 +50,11 @@ def run_episode(args):
                 print(
                     f'Game over, reward: {episode_reward_sum}, frame: {frame}/{args["EVAL_LENGTH"]}'
                 )
-
-    print(
-        "Average reward:",
-        np.mean(eval_rewards) if len(eval_rewards) > 0 else episode_reward_sum,
-    )
+    if args["WRITE_TERMINAL"]:
+        print(
+            "Average reward:",
+            np.mean(eval_rewards) if len(eval_rewards) > 0 else episode_reward_sum,
+        )
 
     history["raw_state"] = np.stack(history["raw_state"], axis=0)[-50:]
     history["state"] = np.stack(history["state"], axis=0)[-50:]
@@ -63,9 +63,21 @@ def run_episode(args):
     return history
 
 
+def parse_cli_arguments(args):
+    parser = argparse.ArgumentParser(description="Process some integers.")
+    for key, value in args.items():
+        parser.add_argument("--" + key, type=type(value), default=value)
+    parser.add_argument("--save_frames", action=argparse.BooleanOptionalAction)
+
+    args = vars(parser.parse_args())
+    return args
+
+
 if __name__ == "__main__":
     with open("explain.yaml") as f:
         config = yaml.load(f, Loader=yaml.FullLoader)
+
+    config = parse_cli_arguments(config)
 
     if config["LOAD_HISTORY_FROM"] is None:
         h = run_episode(config)
@@ -92,14 +104,21 @@ if __name__ == "__main__":
     elif config["EXPLAINABILITY_METHOD"] == "lime":
         frames = lime_explain(config, h)
     elif config["EXPLAINABILITY_METHOD"] == "gradcam":
-        frames = gradcam_implementation(config, h)
+        frames = gradcam_explain(config, h)
     else:
-        raise NotImplementedError("EXPLAINABILITY_METHOD not supported, enter shap, lime or gradcam")
+        raise NotImplementedError(
+            "EXPLAINABILITY_METHOD not supported, enter shap, lime or gradcam"
+        )
 
-    make_movie(
-        frames,
-        config["VIDEO_FPS"],
-        config["MOVIE_SAVE_DIR"],
-        config["MOVIE_TITLE"],
-    )
-    # NOOP, FIRE, RIGHT, LEFT
+    if config["save_frames"]:
+        save_frames(
+            frames,
+            config["MOVIE_SAVE_DIR"] + config["EXPLAINABILITY_METHOD"],
+        )
+    else:
+        make_movie(
+            frames,
+            config["VIDEO_FPS"],
+            config["MOVIE_SAVE_DIR"],
+            config["MOVIE_TITLE"],
+        )
