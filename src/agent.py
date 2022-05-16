@@ -207,9 +207,7 @@ class Agent(object):
         double_q = future_q_vals[range(batch_size), arg_q_max]
 
         # Calculate targets (bellman equation)
-        target_q = rewards + (
-            gamma * double_q * (1 - terminal_flags)
-        )  # TODO: is this clip rewards?
+        target_q = rewards + (gamma * double_q * (1 - terminal_flags))  # TODO: is this clip rewards?
 
         # Use targets to calculate loss (and use loss to calculate gradients)
         with tf.GradientTape() as tape:

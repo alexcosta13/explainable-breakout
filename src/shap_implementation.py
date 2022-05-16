@@ -27,9 +27,7 @@ def shap_calculate(agent, history, max_evals, batch_size, number_of_outputs=4):
         )
         i += 1
 
-    mask = get_mask()
-
-    masker = shap.maskers.Image(mask)
+    masker = shap.maskers.Image(get_mask())
     explainer = shap.Explainer(func, masker)
     shap_values = explainer(
         np.array(data),

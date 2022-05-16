@@ -37,8 +37,6 @@ def lime_explain(args, history):
     blue = np.zeros((210, 160, 3))
     blue[:, :, 2] = 1
 
-    mask = get_mask()
-
     for i, image in enumerate(data):
         if history["action"][i] in (2, 3):
             explainer = lime_image.LimeImageExplainer()
@@ -46,7 +44,7 @@ def lime_explain(args, history):
                 image,
                 func,
                 top_labels=4,
-                hide_color=mask,
+                hide_color=get_mask(),
                 num_samples=args["LIME_NUM_SAMPLES"],
             )
 
