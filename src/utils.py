@@ -8,7 +8,6 @@ def load_agent(args):
     replay_buffer = ReplayBuffer(
         size=args["REPLAY_BUFFER_SIZE"],
         input_shape=args["INPUT_SHAPE"],
-        use_per=False,
     )
     agent = Agent(
         None,
@@ -17,7 +16,6 @@ def load_agent(args):
         4,
         input_shape=args["INPUT_SHAPE"],
         batch_size=args["AGENT_BATCH_SIZE"],
-        use_per=False,
     )
 
     if args["LOAD_AGENT_FROM"] is None:

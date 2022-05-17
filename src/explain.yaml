@@ -11,7 +11,7 @@ EVAL_LENGTH: 7200  # Number of frames to evaluate for. 7200 frames / 60 fps = 2 
 MAX_NOOP_STEPS: 20  # Randomly perform this number of actions before every evaluation to give it an element of randomness
 AGENT_BATCH_SIZE: 32  # Number of samples the agent learns from at once
 
-# LOADING AND SAVING
+# LOADING AND SAVING INFORMATION
 LOAD_AGENT_FROM: 'breakout-saves/save-last'
 LOAD_REPLAY_BUFFER: False
 WRITE_TERMINAL: True
@@ -21,7 +21,7 @@ LOAD_HISTORY_FROM: "h5.pkl"
 SAVE_HISTORY_TO: ""
 
 EXPLAINABILITY_METHOD: "shap"
-VIDEO_FIRST_FRAME: 3734  # 2149: 4234
+VIDEO_FIRST_FRAME: 3734
 VIDEO_LENGTH_FRAMES: 30
 SHAP_MAX_EVALS: 500  # default is 500
 SHAP_BATCH_SIZE: 10  # default is 10

@@ -6,8 +6,6 @@ import tensorflow as tf
 
 
 class Agent(object):
-    """Implements a standard DDDQN agent"""
-
     def __init__(
         self,
         dqn,
@@ -24,7 +22,6 @@ class Agent(object):
         eps_annealing_frames=1000000,
         replay_buffer_start_size=50000,
         max_frames=25000000,
-        use_per=True,
     ):
         """
         Arguments:
@@ -42,7 +39,6 @@ class Agent(object):
             eps_annealing_frames: Number of frames during which epsilon will be annealed to eps_final, then eps_final_frame
             replay_buffer_start_size: Size of replay buffer before beginning to learn (after this many frames, epsilon is decreased more slowly)
             max_frames: Number of total frames the agent will be trained for
-            use_per: Use PER instead of classic experience replay
         """
 
         self.n_actions = n_actions
@@ -55,7 +51,6 @@ class Agent(object):
         self.batch_size = batch_size
 
         self.replay_buffer = replay_buffer
-        self.use_per = use_per
 
         # Epsilon information
         self.eps_initial = eps_initial
@@ -123,42 +118,6 @@ class Agent(object):
         )[0]
         return q_vals.argmax()
 
-    def get_intermediate_representation(
-        self, state, layer_names=None, stack_state=True
-    ):
-        """
-        Get the output of a hidden layer inside the model.  This will be/is used for visualizing model
-        Arguments:
-            state: The input to the model to get outputs for hidden layers from
-            layer_names: Names of the layers to get outputs from.  This can be a list of multiple names, or a single name
-            stack_state: Stack `state` four times so the model can take input on a single (84, 84, 1) frame
-        Returns:
-            Outputs to the hidden layers specified, in the order they were specified.
-        """
-        # Prepare list of layers
-        if isinstance(layer_names, list) or isinstance(layer_names, tuple):
-            layers = [
-                self.DQN.get_layer(name=layer_name).output for layer_name in layer_names
-            ]
-        else:
-            layers = self.DQN.get_layer(name=layer_names).output
-
-        # Model for getting intermediate output
-        temp_model = tf.keras.Model(self.DQN.inputs, layers)
-
-        # Stack state 4 times
-        if stack_state:
-            if len(state.shape) == 2:
-                state = state[:, :, np.newaxis]
-            state = np.repeat(state, self.history_length, axis=2)
-
-        # Put it all together
-        return temp_model.predict(
-            state.reshape(
-                (-1, self.input_shape[0], self.input_shape[1], self.history_length)
-            )
-        )
-
     def update_target_network(self):
         """Update the target Q network"""
         self.target_dqn.set_weights(self.DQN.get_weights())
@@ -167,37 +126,21 @@ class Agent(object):
         """Wrapper function for adding an experience to the Agent's replay buffer"""
         self.replay_buffer.add_experience(action, frame, reward, terminal, clip_reward)
 
-    def learn(self, batch_size, gamma, frame_number, priority_scale=1.0):
+    def learn(self, batch_size, gamma):
         """Sample a batch and use it to improve the DQN
         Arguments:
             batch_size: How many samples to draw for an update
             gamma: Reward discount
-            frame_number: Global frame number (used for calculating importances)
-            priority_scale: How much to weight priorities when sampling the replay buffer. 0 = completely random,
-            1 = completely based on priority
         Returns:
             The loss between the predicted and target Q as a float
         """
-
-        if self.use_per:
-            (
-                (states, actions, rewards, new_states, terminal_flags),
-                importance,
-                indices,
-            ) = self.replay_buffer.get_minibatch(
-                batch_size=self.batch_size, priority_scale=priority_scale
-            )
-            importance = importance ** (1 - self.calc_epsilon(frame_number))
-        else:
-            (
-                states,
-                actions,
-                rewards,
-                new_states,
-                terminal_flags,
-            ) = self.replay_buffer.get_minibatch(
-                batch_size=self.batch_size, priority_scale=priority_scale
-            )
+        (
+            states,
+            actions,
+            rewards,
+            new_states,
+            terminal_flags,
+        ) = self.replay_buffer.get_minibatch(batch_size=self.batch_size)
 
         # Main DQN estimates best action in new states
         arg_q_max = self.DQN.predict(new_states).argmax(axis=1)
@@ -207,7 +150,7 @@ class Agent(object):
         double_q = future_q_vals[range(batch_size), arg_q_max]
 
         # Calculate targets (bellman equation)
-        target_q = rewards + (gamma * double_q * (1 - terminal_flags))  # TODO: is this clip rewards?
+        target_q = rewards + (gamma * double_q * (1 - terminal_flags))
 
         # Use targets to calculate loss (and use loss to calculate gradients)
         with tf.GradientTape() as tape:
@@ -221,19 +164,10 @@ class Agent(object):
             error = Q - target_q
             loss = tf.keras.losses.Huber()(target_q, Q)
 
-            if self.use_per:
-                # Multiply the loss by importance, so that the gradient is also scaled.
-                # The importance scale reduces bias against situataions that are sampled
-                # more frequently.
-                loss = tf.reduce_mean(loss * importance)
-
         model_gradients = tape.gradient(loss, self.DQN.trainable_variables)
         self.DQN.optimizer.apply_gradients(
             zip(model_gradients, self.DQN.trainable_variables)
         )
-
-        if self.use_per:
-            self.replay_buffer.set_priorities(indices, error)
 
         return float(loss.numpy()), error
 
