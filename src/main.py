@@ -36,7 +36,7 @@ def main(args):
     )
 
     replay_buffer = ReplayBuffer(
-        size=args["MEM_SIZE"], input_shape=args["INPUT_SHAPE"], use_per=args["USE_PER"]
+        size=args["REPLAY_BUFFER_SIZE"], input_shape=args["INPUT_SHAPE"]
     )
     agent = Agent(
         main_dqn,
@@ -45,7 +45,6 @@ def main(args):
         game_wrapper.env.action_space.n,
         input_shape=args["INPUT_SHAPE"],
         batch_size=args["BATCH_SIZE"],
-        use_per=args["USE_PER"],
     )
 
     # Training and evaluation
@@ -103,10 +102,7 @@ def main(args):
                         and agent.replay_buffer.count > args["MIN_REPLAY_BUFFER_SIZE"]
                     ):
                         loss, _ = agent.learn(
-                            args["BATCH_SIZE"],
-                            gamma=args["DISCOUNT_FACTOR"],
-                            frame_number=frame_number,
-                            priority_scale=args["PRIORITY_SCALE"],
+                            args["BATCH_SIZE"], gamma=args["DISCOUNT_FACTOR"]
                         )
                         loss_list.append(loss)
 
