@@ -2,8 +2,7 @@ import numpy as np
 
 import shap
 from preprocessing import process_multiple_frames
-from video import make_movie
-from utils import load_agent
+from utils import load_agent, get_mask
 
 
 def shap_calculate(agent, history, max_evals, batch_size, number_of_outputs=4):
@@ -28,13 +27,13 @@ def shap_calculate(agent, history, max_evals, batch_size, number_of_outputs=4):
         )
         i += 1
 
-    masker = shap.maskers.Image("inpaint_telea", (210, 160 * 4, 3))
+    masker = shap.maskers.Image(get_mask())
     explainer = shap.Explainer(func, masker)
     shap_values = explainer(
-        data,
+        np.array(data),
         max_evals=max_evals,
         batch_size=batch_size,
-        outputs=shap.Explanation.argsort.flip[:number_of_outputs],
+        # outputs=shap.Explanation.argsort.flip[:number_of_outputs],
     )
 
     return shap_values
@@ -69,7 +68,7 @@ def shap_postprocess(history, shap_values, percentile=90, alpha=0.7):
             plot = np.where(
                 right[i] == 0,
                 raw_state / 255,
-                raw_state / 255 * (1 - alpha) + red * alpha * right[i],
+                raw_state / 255 * (1 - alpha) + blue * alpha * right[i],
             )
         elif history["action"][i] == 3:
             plot = np.where(
@@ -91,13 +90,8 @@ def shap_explain(args, history):
         agent, history, args["SHAP_MAX_EVALS"], args["SHAP_BATCH_SIZE"]
     )
 
-    frames = shap_postprocess(history, shap_values, args["PERCENTILE"], args["TRANSPARENCY"])
-
-    make_movie(
-        frames,
-        fps=args["VIDEO_FPS"],
-        save_dir=args["MOVIE_SAVE_DIR"],
-        movie_title=args["MOVIE_TITLE"],
+    frames = shap_postprocess(
+        history, shap_values, args["PERCENTILE"], args["TRANSPARENCY"]
     )
 
     return frames

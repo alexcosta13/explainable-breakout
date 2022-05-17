@@ -2,8 +2,7 @@ import numpy as np
 from lime import lime_image
 
 from preprocessing import process_multiple_frames
-from video import make_movie
-from utils import load_agent
+from utils import load_agent, get_mask
 
 
 def lime_explain(args, history):
@@ -39,22 +38,21 @@ def lime_explain(args, history):
     blue[:, :, 2] = 1
 
     for i, image in enumerate(data):
-        if history["action"][i] in (2,3):
+        if history["action"][i] in (2, 3):
             explainer = lime_image.LimeImageExplainer()
             explanation = explainer.explain_instance(
                 image,
                 func,
                 top_labels=4,
-                hide_color=0,
+                hide_color=get_mask(),
                 num_samples=args["LIME_NUM_SAMPLES"],
             )
 
-            percentile = args["PERCENTILE"]
-            alpha = args["TRANSPARENCY"]
-            image = image[:, :160, :]
+        percentile = args["PERCENTILE"]
+        alpha = args["TRANSPARENCY"]
+        image = image[:, :160, :] / 255
 
         if history["action"][i] == 2:
-
             # Map each explanation weight to the corresponding superpixel
             dict_heatmap_right = dict(explanation.local_exp[2])
             right = np.vectorize(dict_heatmap_right.get)(explanation.segments)[:, :160]
@@ -63,8 +61,8 @@ def lime_explain(args, history):
             right = np.repeat(right[:, :, np.newaxis], 3, axis=2)
             plot = np.where(
                 right == 0,
-                image / 255,
-                image / 255 * (1 - alpha) + red * alpha * right,
+                image,
+                image * (1 - alpha) + blue * alpha * right,
             )
         elif history["action"][i] == 3:
             # Map each explanation weight to the corresponding superpixel
@@ -75,22 +73,12 @@ def lime_explain(args, history):
             left = np.repeat(left[:, :, np.newaxis], 3, axis=2)
             plot = np.where(
                 left == 0,
-                image / 255,
-                image / 255 * (1 - alpha) + blue * alpha * left,
+                image,
+                image * (1 - alpha) + red * alpha * left,
             )
         else:
-            plot = image[:, :160, :] / 255
+            plot = image
 
         history["explanation"].append(plot)
 
-        # Plot. The visualization makes more sense if a symmetrical colorbar is used.
-        # plt.imshow(heatmap, cmap="RdBu", vmin=-heatmap.max(), vmax=heatmap.max())
-        # plt.colorbar()
-        # plt.show()
-
-    make_movie(
-        history["explanation"],
-        fps=args["VIDEO_FPS"],
-        movie_title=args["MOVIE_TITLE"],
-        save_dir=args["MOVIE_SAVE_DIR"],
-    )
+    return history["explanation"]
