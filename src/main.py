@@ -196,6 +196,7 @@ def main(args):
                     loss_list=loss_list,
                     save_buffer=args["SAVE_REPLAY_BUFFER"],
                 )
+                wandb.save(f"{args['SAVE_TO']}/save-{str(frame_number).zfill(8)}/*")
 
     except KeyboardInterrupt:
         print("\nTraining exited early.")
@@ -218,6 +219,7 @@ def main(args):
                 loss_list=loss_list,
                 save_buffer=args["SAVE_REPLAY_BUFFER"],
             )
+            wandb.save(f"{args['SAVE_TO']}/save-{str(frame_number).zfill(8)}/*")
             print("Saved.")
 
 
