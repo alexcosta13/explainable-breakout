@@ -10,7 +10,7 @@ CLIP_REWARD: True  # Any positive reward is +1, and negative reward is -1, 0 is 
 ENV_NAME: "Breakout-v4"  # Name of the Gym environment for the agent to learn & play
 TOTAL_FRAMES: 30000000  # Total number of frames to train for
 MAX_EPISODE_LENGTH: 18000  # Maximum length of an episode (in frames).  18000 frames / 60 fps = 5 minutes
-FRAMES_BETWEEN_EVAL: 100000  # Number of frames between evaluations
+FRAMES_BETWEEN_EVAL: 300000  # Number of frames between evaluations
 EVAL_LENGTH: 10000  # Number of frames to evaluate for
 MAX_NOOP_STEPS: 20  # Randomly perform this number of actions before every evaluation to give it an element of randomness
 BATCH_SIZE: 32  # Number of samples the agent learns from at once
@@ -20,8 +20,8 @@ UPDATE_FREQ_TARGET_NETWORK: 10000  # Number of actions between updating the targ
 
 # LOADING AND SAVING INFORMATION
 SAVE_TO: 'breakout-saves'  # If null, it will not save the agent
-SAVE_REPLAY_BUFFER: False
-LOAD_FROM: 'breakout-saves/save-last'  # If null, it will train a new agent
+SAVE_REPLAY_BUFFER: True
+LOAD_FROM: null  # If null, it will train a new agent
 LOAD_REPLAY_BUFFER: False
 WRITE_WANDB: True  # Whether to log progress to WandB
 WRITE_TERMINAL: False  # Whether to log progress to the terminal
