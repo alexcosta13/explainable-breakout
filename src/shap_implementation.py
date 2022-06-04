@@ -2,7 +2,7 @@ import numpy as np
 
 import shap
 from preprocessing import process_multiple_frames
-from utils import load_agent, get_mask
+from own_utils import load_agent, get_mask
 
 
 def shap_calculate(agent, history, max_evals, batch_size, number_of_outputs=4):
