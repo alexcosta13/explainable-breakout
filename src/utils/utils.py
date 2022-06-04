@@ -367,6 +367,7 @@ def get_saved_hyperparams(
             else:
                 normalize_kwargs = {"norm_obs": hyperparams["normalize"], "norm_reward": norm_reward}
             hyperparams["normalize_kwargs"] = normalize_kwargs
+    print("hyperparams", hyperparams, stats_path)
     return hyperparams, stats_path
 
 
@@ -434,8 +435,10 @@ def get_model_path(
     else:
         # Default: load latest model
         model_path = os.path.join(log_path, f"{env_id}.zip")
+        print("model path", model_path)
         name_prefix = f"final-model-{algo}-{env_id}"
-
+        print("name prefix", name_prefix)
+    model_path = "rl-trained-agents/dqn/BreakoutNoFrameskip-v4_1/BreakoutNoFrameskip-v4.zip"
     found = os.path.isfile(model_path)
     if not found:
         raise ValueError(f"No model found for {algo} on {env_id}, path: {model_path}")

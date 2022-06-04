@@ -7,58 +7,67 @@ import numpy as np
 from lime_implementation import lime_explain
 from shap_implementation import shap_explain
 from gradcam import gradcam_explain
+from utils import create_test_env, get_saved_hyperparams
 from video import make_movie, save_frames
 from own_utils import load_agent
 
 
 def run_episode(args):
-    from gamewrapper import GameWrapper
-
-    game_wrapper = GameWrapper(args["ENV_NAME"], args["MAX_NOOP_STEPS"])
-    agent = load_agent(args)
+    model = load_agent(args)
 
     history = {"state": [], "raw_state": [], "action": []}
 
-    terminal = True
-    eval_rewards = []
-    evaluate_frame_number = 0
+    env_id = "BreakoutNoFrameskip-v4"
+    algo = "dqn"
+    seed = 0
+    no_render = True
+    hyperparams, stats_path = get_saved_hyperparams(
+        "/content/explainable-breakout/src/rl-trained-agents/dqn/BreakoutNoFrameskip-v4_1/BreakoutNoFrameskip-v4"
+    )
 
-    for frame in range(args["EVAL_LENGTH"]):
-        if terminal:
-            game_wrapper.reset(evaluation=True)
-            life_lost = True
-            episode_reward_sum = 0
+    env = create_test_env(
+        env_id,
+        n_envs=1,
+        stats_path=stats_path,
+        seed=seed,
+        log_dir=None,
+        should_render=not no_render,
+        hyperparams=hyperparams,
+        # env_kwargs=env_kwargs,
+    )
 
-        action = (
-            1 if life_lost else agent.get_action(0, game_wrapper.state, evaluation=True)
+    kwargs = dict(seed=seed)
+    kwargs.update(dict(buffer_size=1))
+
+    deterministic = False
+    obs = env.reset()
+    lstm_states = None
+    episode_starts = np.ones((1,), dtype=bool)
+    for _ in range(args["EVAL_LENGTH"] + 1):
+        action, lstm_states = model.predict(
+            obs,
+            state=lstm_states,
+            episode_start=episode_starts,
+            deterministic=deterministic,
         )
+        obs, _, dones, _ = env.step(action)
+        episode_starts = dones
+        raw_state = env.render("rgb_array")
+        history["state"].append(obs.squeeze())
+        history["raw_state"].append(raw_state.squeeze())
+        history["action"].append(action.squeeze())
 
-        new_frame, state, reward, terminal, life_lost = game_wrapper.step(
-            action, render_mode="explain"
-        )
+    env.close()
 
-        history["state"].append(game_wrapper.state)
-        history["raw_state"].append(new_frame)
-        history["action"].append(action)
-        evaluate_frame_number += 1
-        episode_reward_sum += reward
-
-        if terminal:
-            eval_rewards.append(episode_reward_sum)
-
-            if args["WRITE_TERMINAL"]:
-                print(
-                    f'Game over, reward: {episode_reward_sum}, frame: {frame}/{args["EVAL_LENGTH"]}'
-                )
-    if args["WRITE_TERMINAL"]:
-        print(
-            "Average reward:",
-            np.mean(eval_rewards) if len(eval_rewards) > 0 else episode_reward_sum,
-        )
-
-    history["raw_state"] = np.stack(history["raw_state"], axis=0)[-50:]
-    history["state"] = np.stack(history["state"], axis=0)[-50:]
-    history["action"] = np.array(history["action"])[-50:]
+    history["raw_state"] = np.stack(history["raw_state"], axis=0)
+    history["state"] = np.stack(history["state"], axis=0)
+    history["action"] = np.array(history["action"])
+    print(
+        "SHAPES",
+        history["raw_state"].shape,
+        history["state"].shape,
+        history["action"].shape,
+    )
 
     return history
 
@@ -67,7 +76,7 @@ def parse_cli_arguments(args):
     parser = argparse.ArgumentParser(description="Process some integers.")
     for key, value in args.items():
         parser.add_argument("--" + key, type=type(value), default=value)
-    parser.add_argument("--save_frames", action=argparse.BooleanOptionalAction)
+    # parser.add_argument("--save_frames", action=argparse.BooleanOptionalAction)
 
     args = vars(parser.parse_args())
     return args
