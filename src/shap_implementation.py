@@ -9,7 +9,7 @@ def shap_calculate(agent, history, max_evals, batch_size, number_of_outputs=4):
     def func(x):
         tmp = x.copy()
         tmp = process_multiple_frames(tmp)
-        return agent.DQN(tmp)
+        return agent.predict(tmp)[0]
 
     i = 0
     data = []

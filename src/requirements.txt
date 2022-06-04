@@ -1,6 +1,19 @@
-gym==0.19.0
-numpy==1.21.5
-PyYAML==6.0
-tensorflow==2.8.0
-tensorflow_gpu==2.8.0
-wandb==0.12.11
+gym==0.21
+stable-baselines3[extra,tests,docs]>=1.5.1a7
+sb3-contrib>=1.5.1a8
+box2d-py==2.3.8
+pybullet
+gym-minigrid
+scikit-optimize
+optuna
+pytablewriter~=0.64
+seaborn
+pyyaml>=5.1
+cloudpickle>=1.5.0
+plotly
+# panda-gym==1.1.1 # tmp fix: until compatibility with panda-gym v2
+rliable>=1.0.5
+wandb
+ale-py==0.7.4 # tmp fix: until new SB3 version is released
+# TODO: replace with release
+git+https://github.com/huggingface/huggingface_sb3

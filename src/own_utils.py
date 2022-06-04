@@ -7,7 +7,7 @@ from stable_baselines3.common.utils import set_random_seed
 from utils.utils import ALGOS, create_test_env, get_model_path, get_saved_hyperparams
 
 
-def load_agent():
+def load_agent(args):
     env_id = "BreakoutNoFrameskip-v4"
     folder = "rl-trained-agents"
     algo = "dqn"
