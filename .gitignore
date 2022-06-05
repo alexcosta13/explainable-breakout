@@ -11,4 +11,3 @@ wandb/
 .ipynb_checkpoints
 .DS_Store
 *.mp4
-*.pkl

@@ -9,7 +9,9 @@ def shap_calculate(agent, history, max_evals, batch_size, number_of_outputs=4):
     def func(x):
         tmp = x.copy()
         tmp = process_multiple_frames(tmp)
-        return agent.predict(tmp)[0]
+        a = agent.action_probability(tmp)
+        print(a)
+        return a[0]
 
     i = 0
     data = []
