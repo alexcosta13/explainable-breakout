@@ -2,16 +2,15 @@ import numpy as np
 
 import shap
 from preprocessing import process_multiple_frames
-from own_utils import load_agent, get_mask
+from own_utils import load_agent, get_mask, softmax
 
 
 def shap_calculate(agent, history, max_evals, batch_size, number_of_outputs=4):
     def func(x):
         tmp = x.copy()
         tmp = process_multiple_frames(tmp)
-        a = agent.predict(tmp)
-        print(a)
-        return a[0]
+        a, _ = agent.predict(tmp, deterministic=True)
+        return softmax(a)
 
     i = 0
     data = []

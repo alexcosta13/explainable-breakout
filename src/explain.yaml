@@ -7,7 +7,7 @@ CLIP_REWARD: True  # Any positive reward is +1, and negative reward is -1, 0 is 
 
 # EVALUATION
 ENV_NAME: "Breakout-v4"  # Name of the Gym environment for the agent to learn & play
-EVAL_LENGTH: 10  # Number of frames to evaluate for. 7200 frames / 60 fps = 2 minutes
+EVAL_LENGTH: 7200  # Number of frames to evaluate for. 7200 frames / 60 fps = 2 minutes
 MAX_NOOP_STEPS: 20  # Randomly perform this number of actions before every evaluation to give it an element of randomness
 AGENT_BATCH_SIZE: 32  # Number of samples the agent learns from at once
 
@@ -21,8 +21,8 @@ LOAD_HISTORY_FROM: null
 SAVE_HISTORY_TO: "hh.pkl"
 
 EXPLAINABILITY_METHOD: "shap"
-VIDEO_FIRST_FRAME: 0
-VIDEO_LENGTH_FRAMES: 10
+VIDEO_FIRST_FRAME: 1000
+VIDEO_LENGTH_FRAMES: 50
 SHAP_MAX_EVALS: 500  # default is 500
 SHAP_BATCH_SIZE: 10  # default is 10
 LIME_NUM_SAMPLES: 1000  # default is 1000

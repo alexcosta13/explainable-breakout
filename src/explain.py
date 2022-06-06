@@ -33,22 +33,18 @@ def run_episode(args):
         log_dir=None,
         should_render=not no_render,
         hyperparams=hyperparams,
-        # env_kwargs=env_kwargs,
     )
 
     kwargs = dict(seed=seed)
     kwargs.update(dict(buffer_size=1))
 
-    deterministic = False
     obs = env.reset()
-    lstm_states = None
-    episode_starts = np.ones((1,), dtype=bool)
     for _ in range(args["EVAL_LENGTH"] + 1):
         action, lstm_states = model.predict(
             obs,
-            state=lstm_states,
-            episode_start=episode_starts,
-            deterministic=deterministic,
+            state=None,
+            episode_start=np.ones((1,), dtype=bool),
+            deterministic=True,
         )
         obs, _, dones, _ = env.step(action)
         episode_starts = dones
@@ -62,12 +58,6 @@ def run_episode(args):
     history["raw_state"] = np.stack(history["raw_state"], axis=0)
     history["state"] = np.stack(history["state"], axis=0)
     history["action"] = np.array(history["action"])
-    print(
-        "SHAPES",
-        history["raw_state"].shape,
-        history["state"].shape,
-        history["action"].shape,
-    )
 
     return history
 

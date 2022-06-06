@@ -62,3 +62,8 @@ def get_mask():
     mask[17:195, 152:, :] = [142, 142, 142]
     mask[17:32, :, :] = [142, 142, 142]
     return np.concatenate((mask, mask, mask, mask), axis=1)
+
+
+def softmax(x):
+    e_x = np.exp(x - np.max(x, axis=1)[:, np.newaxis])
+    return e_x / e_x.sum(axis=1)[:, np.newaxis]

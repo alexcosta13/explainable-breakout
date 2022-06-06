@@ -2,7 +2,7 @@ import numpy as np
 from lime import lime_image
 
 from preprocessing import process_multiple_frames
-from own_utils import load_agent, get_mask
+from own_utils import load_agent, get_mask, softmax
 
 
 def lime_explain(args, history):
@@ -11,7 +11,8 @@ def lime_explain(args, history):
     def func(x):
         tmp = x.copy()
         tmp = process_multiple_frames(tmp)
-        return agent.DQN(tmp)
+        a, _ = agent.predict(tmp, deterministic=True)
+        return softmax(a)
 
     i = 0
     data = []
