@@ -13,6 +13,7 @@ class GameWrapper:
         self.env = gym.make(env_name)
         self.no_op_steps = no_op_steps
         self.history_length = history_length
+        self.n_actions = self.env.action_space.n
 
         self.state = None
         self.last_lives = 0
